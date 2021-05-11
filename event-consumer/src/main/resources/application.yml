@@ -1,0 +1,33 @@
+spring:
+  cloud:
+    stream:
+      kafka:
+        binder:
+          broker: localhost:9092 # Kafka Broker
+          consumer-properties:
+            max.poll.records: 20
+            key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value.deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+            interceptor.classes: com.events.eventconsumer.interceptor.OrderEventConsumerInterceptor
+          auto-create-topics: false
+        bindings:
+          orderEventConsumer-in-0:
+            consumer:
+              autoCommitOffset: false
+              enableDlq: true
+              dlqName: order-events-dlq
+              dlq-producer-properties:
+                configuration.key.serializer: org.apache.kafka.common.serialization.StringSerializer
+                configuration.value.serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      bindings:
+        orderEventConsumer-in-0:
+          destination: order-events # Order topic name
+          group: order-event-consumer-group
+        dlqConsumer-in-0:
+          destination: order-events-dlq
+          group: order-events-dlq-group
+    function:
+      definition: orderEventConsumer;dlqConsumer
+
+server:
+  port: 9091

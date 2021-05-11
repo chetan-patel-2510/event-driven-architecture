@@ -1,0 +1,18 @@
+spring:
+  cloud:
+    stream:
+      kafka:
+        binder:
+          broker: localhost:9092 # Kafka Broker
+          producer-properties:
+            key.serializer: org.apache.kafka.common.serialization.StringSerializer
+            value.serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+            interceptor.classes: com.events.eventproducer.interceptor.OrderEventProducerInterceptor
+          auto-create-topics: false
+      bindings:
+        producer-out-0:
+          destination: order-events # Order topic name
+          content-type: application/json
+
+server:
+  port: 9090
